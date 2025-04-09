@@ -1,0 +1,227 @@
+<!-- templates/list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Shortened URLs - TinyLink</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Define color variables */
+        :root {
+            --primary-color-light: #007bff;
+            --primary-hover-light: #0056b3;
+            --background-light: #f8f9fa;
+            --foreground-light: #ffffff;
+            --text-color-light: #212529;
+            --muted-text-light: #6c757d;
+            --border-color-light: #dee2e6;
+            --medium-gray-light: #e9ecef;
+
+            --primary-color-dark: #4dabf7; /* Lighter blue for dark mode */
+            --primary-hover-dark: #74c0fc;
+            --background-dark: #121212;    /* Common dark bg */
+            --foreground-dark: #1e1e1e;    /* Slightly lighter surface */
+            --text-color-dark: #e0e0e0;     /* Off-white text */
+            --muted-text-dark: #a0a0a0;    /* Lighter gray for muted */
+            --border-color-dark: #444444;
+            --medium-gray-dark: #2a2a2a;
+
+            /* Default to light theme */
+            --primary-color: var(--primary-color-light);
+            --primary-hover: var(--primary-hover-light);
+            --background: var(--background-light);
+            --foreground: var(--foreground-light);
+            --text-color: var(--text-color-light);
+            --muted-text: var(--muted-text-light);
+            --border-color: var(--border-color-light);
+            --medium-gray: var(--medium-gray-light);
+
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --success-border: #c3e6cb;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --error-border: #f5c6cb;
+            --info-bg: #d1ecf1;
+            --info-text: #0c5460;
+            --info-border: #bee5eb;
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --warning-border: #ffeeba;
+
+            --border-radius: 6px;
+            --transition-speed: 0.2s;
+        }
+
+        /* Apply dark theme variables */
+        [data-theme="dark"] {
+            --primary-color: var(--primary-color-dark);
+            --primary-hover: var(--primary-hover-dark);
+            --background: var(--background-dark);
+            --foreground: var(--foreground-dark);
+            --text-color: var(--text-color-dark);
+            --muted-text: var(--muted-text-dark);
+            --border-color: var(--border-color-dark);
+            --medium-gray: var(--medium-gray-dark);
+
+            /* Adjust flash message colors for dark mode */
+            --success-bg: #1a3a2a; --success-text: #a7d7b7; --success-border: #2a5f3e;
+            --error-bg: #4d1f24; --error-text: #f5c6cb; --error-border: #843534;
+            --info-bg: #1c3f4f; --info-text: #bee5eb; --info-border: #3a7c89;
+            --warning-bg: #5d440c; --warning-text: #ffeeba; --warning-border: #997528;
+        }
+
+        /* General Styles using variables */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            margin: 0; padding: 20px; display: flex; justify-content: center;
+            align-items: flex-start; min-height: 100vh;
+            transition: background-color var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out;
+        }
+        .container {
+            background-color: var(--foreground);
+            padding: 30px 40px; border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); max-width: 900px; /* Wider for table */ width: 100%;
+            margin-top: 30px; border: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+         h1 { text-align: center; color: var(--primary-color); margin-bottom: 0; font-weight: 700; } /* Adjusted margin */
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px; /* Added gap */
+            border-bottom: 1px solid var(--border-color); /* Optional separator */
+            padding-bottom: 15px; /* Spacing for separator */
+        }
+        .header-container h1 { flex-grow: 1; text-align: left; margin: 0; } /* Let H1 take space */
+        .header-controls { display: flex; align-items: center; gap: 15px; } /* Group nav and toggle */
+        .nav-links a {
+            color: var(--primary-color); text-decoration: none; margin: 0 8px; /* Reduced margin */
+            font-weight: 500; transition: color var(--transition-speed) ease-in-out;
+        }
+        .nav-links a:hover, .nav-links a:focus { text-decoration: underline; color: var(--primary-hover); }
+        #theme-toggle {
+            background: none; border: 1px solid var(--border-color); color: var(--muted-text);
+            padding: 5px 10px; border-radius: var(--border-radius); cursor: pointer;
+            font-size: 1.2rem; line-height: 1;
+            transition: color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+        #theme-toggle:hover, #theme-toggle:focus { color: var(--text-color); border-color: var(--text-color); }
+        .url-table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        th, td {
+            border: 1px solid var(--border-color); padding: 12px 15px; text-align: left;
+            vertical-align: middle;
+            transition: border-color var(--transition-speed) ease-in-out, background-color var(--transition-speed) ease-in-out;
+        }
+        th { background-color: var(--medium-gray); font-weight: 500; white-space: nowrap; }
+        td { background-color: var(--foreground); }
+        /* Zebra striping needs adjustment */
+        [data-theme="light"] tr:nth-child(even) td { background-color: var(--background-light); }
+        [data-theme="dark"] tr:nth-child(even) td { background-color: var(--medium-gray-dark); }
+        td a { color: var(--primary-hover); text-decoration: none; font-weight: 500; transition: color var(--transition-speed) ease-in-out;}
+        td a:hover, td a:focus { text-decoration: underline; }
+        td.long-url-cell { word-break: break-all; max-width: 350px; /* Adjusted max width */ }
+        td.short-url-cell { white-space: nowrap; }
+        td.clicks-cell { text-align: center; white-space: nowrap; }
+        p.no-urls { text-align: center; color: var(--muted-text); margin-top: 30px; font-style: italic; font-size: 1.1em; }
+        @media (max-width: 768px) {
+            .container { padding: 20px; margin-top: 15px; }
+             .header-container { flex-direction: column; align-items: flex-start; padding-bottom: 10px; }
+            .header-container h1 { text-align: center; width: 100%; margin-bottom: 10px;}
+            .header-controls { width: 100%; justify-content: center;}
+            th, td { padding: 8px 10px; }
+            td.long-url-cell { max-width: 250px; }
+        }
+        @media (max-width: 500px) {
+            th, td { font-size: 0.85rem; }
+            td.long-url-cell { max-width: 180px; }
+        }
+    </style>
+
+     <!-- == Theme Handling Script (RUNS EARLY in <head>) == -->
+    <script>
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const toggleButton = document.getElementById('theme-toggle');
+            if (toggleButton) {
+                toggleButton.textContent = theme === 'dark' ? '☀️' : '🌙'; // Sun for dark, Moon for light
+            }
+        };
+        (() => {
+            const savedTheme = localStorage.getItem('theme') || 'light'; // Default light
+            applyTheme(savedTheme);
+        })();
+    </script>
+    <!-- == End Theme Handling Script == -->
+
+</head>
+<body class="list-page"> <!-- Added class for specific styling if needed -->
+    <div class="container">
+        <div class="header-container">
+             <h1>All Shortened URLs</h1>
+             <div class="header-controls">
+                <nav class="nav-links" aria-label="Main navigation">
+                    <a href="{{ url_for('index') }}">Home</a> |
+                    <a href="{{ url_for('list_urls') }}">List All</a>
+                </nav>
+                 <button id="theme-toggle" title="Toggle dark mode" aria-label="Toggle light/dark theme">
+                    <!-- Icon set by JS -->
+                </button>
+             </div>
+        </div>
+
+        {% if url_list %}
+        <div class="url-table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Short Code</th>
+                        <th>Short URL</th>
+                        <th>Original URL</th>
+                        <th>Clicks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in url_list %}
+                    <tr>
+                        <td>{{ item.short_code }}</td>
+                        <td class="short-url-cell"><a href="{{ item.short_url }}" target="_blank" rel="noopener noreferrer">{{ item.short_url }}</a></td>
+                        <td class="long-url-cell"><a href="{{ item.long_url }}" target="_blank" rel="noopener noreferrer" title="{{ item.long_url }}">{{ item.long_url }}</a></td>
+                        <td class="clicks-cell">{{ item.clicks }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="no-urls">No URLs have been shortened yet.</p>
+        {% endif %}
+
+    </div> <!-- End container -->
+
+    <!-- == Theme Toggle Event Listener (RUNS LATE - before </body>) == -->
+    <script>
+        const toggleButton = document.getElementById('theme-toggle');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+        }
+    </script>
+     <!-- == End Theme Toggle Event Listener == -->
+
+</body>
+</html>

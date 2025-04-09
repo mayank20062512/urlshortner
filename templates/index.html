@@ -1,0 +1,264 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyLink - URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Define color variables */
+        :root {
+            --primary-color-light: #007bff;
+            --primary-hover-light: #0056b3;
+            --background-light: #f8f9fa;
+            --foreground-light: #ffffff;
+            --text-color-light: #212529;
+            --muted-text-light: #6c757d;
+            --border-color-light: #dee2e6;
+            --medium-gray-light: #e9ecef;
+
+            --primary-color-dark: #4dabf7; /* Lighter blue for dark mode */
+            --primary-hover-dark: #74c0fc;
+            --background-dark: #121212;    /* Common dark bg */
+            --foreground-dark: #1e1e1e;    /* Slightly lighter surface */
+            --text-color-dark: #e0e0e0;     /* Off-white text */
+            --muted-text-dark: #a0a0a0;    /* Lighter gray for muted */
+            --border-color-dark: #444444;
+            --medium-gray-dark: #2a2a2a;
+
+            /* Default to light theme */
+            --primary-color: var(--primary-color-light);
+            --primary-hover: var(--primary-hover-light);
+            --background: var(--background-light);
+            --foreground: var(--foreground-light);
+            --text-color: var(--text-color-light);
+            --muted-text: var(--muted-text-light);
+            --border-color: var(--border-color-light);
+            --medium-gray: var(--medium-gray-light);
+
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --success-border: #c3e6cb;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --error-border: #f5c6cb;
+            --info-bg: #d1ecf1;
+            --info-text: #0c5460;
+            --info-border: #bee5eb;
+            --warning-bg: #fff3cd;
+            --warning-text: #856404;
+            --warning-border: #ffeeba;
+
+            --border-radius: 6px;
+            --transition-speed: 0.2s;
+        }
+
+        /* Apply dark theme variables */
+        [data-theme="dark"] {
+            --primary-color: var(--primary-color-dark);
+            --primary-hover: var(--primary-hover-dark);
+            --background: var(--background-dark);
+            --foreground: var(--foreground-dark);
+            --text-color: var(--text-color-dark);
+            --muted-text: var(--muted-text-dark);
+            --border-color: var(--border-color-dark);
+            --medium-gray: var(--medium-gray-dark);
+
+            /* Adjust flash message colors for dark mode */
+            --success-bg: #1a3a2a; --success-text: #a7d7b7; --success-border: #2a5f3e;
+            --error-bg: #4d1f24; --error-text: #f5c6cb; --error-border: #843534;
+            --info-bg: #1c3f4f; --info-text: #bee5eb; --info-border: #3a7c89;
+            --warning-bg: #5d440c; --warning-text: #ffeeba; --warning-border: #997528;
+        }
+
+        /* General Styles using variables */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            margin: 0; padding: 20px; display: flex; justify-content: center;
+            align-items: flex-start; min-height: 100vh;
+            transition: background-color var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out;
+        }
+        .container {
+            background-color: var(--foreground);
+            padding: 30px 40px; border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); max-width: 700px; width: 100%;
+            margin-top: 30px; border: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 0; font-weight: 700; } /* Adjusted margin */
+        .header-container {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px; /* Added gap */
+            border-bottom: 1px solid var(--border-color); /* Optional separator */
+            padding-bottom: 15px; /* Spacing for separator */
+        }
+        .header-container h1 { flex-grow: 1; text-align: left; margin: 0; } /* Let H1 take space */
+        .header-controls { display: flex; align-items: center; gap: 15px; } /* Group nav and toggle */
+        .nav-links a {
+            color: var(--primary-color); text-decoration: none; margin: 0 8px; /* Reduced margin */
+            font-weight: 500; transition: color var(--transition-speed) ease-in-out;
+        }
+        .nav-links a:hover, .nav-links a:focus { text-decoration: underline; color: var(--primary-hover); }
+        #theme-toggle {
+            background: none; border: 1px solid var(--border-color); color: var(--muted-text);
+            padding: 5px 10px; border-radius: var(--border-radius); cursor: pointer;
+            font-size: 1.2rem; line-height: 1;
+            transition: color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+        #theme-toggle:hover, #theme-toggle:focus { color: var(--text-color); border-color: var(--text-color); }
+        form { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; align-items: center; }
+        input[type="url"] {
+            flex-grow: 1; min-width: 200px; padding: 12px 15px; border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); font-size: 1rem; background-color: var(--background);
+            color: var(--text-color);
+            transition: border-color var(--transition-speed) ease-in-out, box-shadow var(--transition-speed) ease-in-out, background-color var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out;
+        }
+        input[type="url"]:focus { border-color: var(--primary-color); outline: none; }
+        input[type="url"]::placeholder { color: var(--muted-text); opacity: 0.7; }
+        [data-theme="light"] input[type="url"]:focus { box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); }
+        [data-theme="dark"] input[type="url"]:focus { box-shadow: 0 0 0 0.2rem rgba(77, 171, 247, 0.25); }
+        button[type="submit"] {
+            padding: 12px 20px; background-color: var(--primary-color); color: #fff; /* Ensure white text */
+            border: none; border-radius: var(--border-radius); cursor: pointer; font-size: 1rem;
+            font-weight: 500; transition: background-color var(--transition-speed) ease-in-out; white-space: nowrap;
+        }
+        button[type="submit"]:hover, button[type="submit"]:focus { background-color: var(--primary-hover); }
+        .flash-messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .flash-messages li {
+            padding: 12px 15px; margin-bottom: 10px; border-radius: var(--border-radius);
+            border: 1px solid transparent; font-size: 0.95rem;
+            transition: background-color var(--transition-speed) ease-in-out, color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+        .flash-success { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+        .flash-error   { background-color: var(--error-bg);   color: var(--error-text);   border-color: var(--error-border); }
+        .flash-info    { background-color: var(--info-bg);    color: var(--info-text);    border-color: var(--info-border); }
+        .flash-warning { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+        .result-area {
+            margin-top: 30px; padding: 25px; background-color: var(--medium-gray);
+            border: 1px solid var(--border-color); border-radius: var(--border-radius); display: flex;
+            flex-wrap: wrap; gap: 20px; align-items: center;
+            transition: background-color var(--transition-speed) ease-in-out, border-color var(--transition-speed) ease-in-out;
+        }
+        .result-text { flex-grow: 1; min-width: 250px; }
+        .result-text h3 { margin-top: 0; margin-bottom: 10px; color: var(--text-color); font-weight: 500; transition: color var(--transition-speed) ease-in-out;}
+        .result-text p { margin-bottom: 5px; font-size: 0.9rem; color: var(--muted-text); transition: color var(--transition-speed) ease-in-out;}
+        .result-text .short-url-link {
+            font-weight: bold; color: var(--primary-hover); text-decoration: none;
+            word-break: break-all; /* Allow link to break */ font-size: 1.1rem; transition: color var(--transition-speed) ease-in-out;
+        }
+        .result-text .short-url-link:hover, .result-text .short-url-link:focus { text-decoration: underline; }
+        .qr-code { text-align: center; }
+        .qr-code img {
+            max-width: 150px; height: auto; border: 1px solid var(--border-color); padding: 5px;
+            background-color: white; /* Keep QR bg white for scanning */
+            transition: border-color var(--transition-speed) ease-in-out;
+        }
+        .qr-code p { margin-top: 5px; font-size: 0.8rem; color: var(--muted-text); transition: color var(--transition-speed) ease-in-out; }
+        @media (max-width: 768px) {
+            .container { padding: 20px; margin-top: 15px; }
+            .header-container { flex-direction: column; align-items: flex-start; padding-bottom: 10px; }
+            .header-container h1 { text-align: center; width: 100%; margin-bottom: 10px;}
+            .header-controls { width: 100%; justify-content: center;}
+        }
+        @media (max-width: 600px) {
+            form { flex-direction: column; align-items: stretch; }
+            .result-area { flex-direction: column; align-items: center; text-align: center; }
+            .result-text { min-width: unset; margin-bottom: 15px; word-break: break-all; }
+        }
+    </style>
+
+    <!-- == Theme Handling Script (RUNS EARLY in <head>) == -->
+    <script>
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const toggleButton = document.getElementById('theme-toggle');
+            if (toggleButton) {
+                toggleButton.textContent = theme === 'dark' ? '☀️' : '🌙'; // Sun for dark, Moon for light
+            }
+        };
+        (() => {
+            const savedTheme = localStorage.getItem('theme') || 'light'; // Default light
+            applyTheme(savedTheme);
+        })();
+    </script>
+    <!-- == End Theme Handling Script == -->
+
+</head>
+<body>
+    <div class="container">
+        <div class="header-container">
+            <h1>TinyLink Shortener</h1>
+            <div class="header-controls">
+                <nav class="nav-links" aria-label="Main navigation">
+                    <a href="{{ url_for('index') }}">Home</a> |
+                    <a href="{{ url_for('list_urls') }}">List All</a>
+                </nav>
+                <button id="theme-toggle" title="Toggle dark mode" aria-label="Toggle light/dark theme">
+                    <!-- Icon set by JS -->
+                </button>
+            </div>
+        </div>
+
+        <!-- Flash Messages Display -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+            {% for category, message in messages %}
+              <li class="flash-{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('index') }}">
+            <input type="url" name="long_url" placeholder="Enter your long URL (e.g., https://example.com)"
+                   value="{{ submitted_long_url or '' }}" required aria-label="Long URL to shorten">
+            <button type="submit">Shorten & Get QR</button>
+        </form>
+
+        {% if short_url_display %}
+        <div class="result-area">
+            <div class="result-text">
+                <h3>Your Shortened Link:</h3>
+                <a href="{{ short_url_display }}" target="_blank" class="short-url-link">{{ short_url_display }}</a>
+                <p>Original: {{ submitted_long_url if submitted_long_url else 'Previously shortened URL' }}</p>
+            </div>
+
+            {% if qr_code_url %}
+            <div class="qr-code">
+                 <img src="{{ qr_code_url }}" alt="QR Code for {{ short_url_display }}">
+                 <p>Scan QR Code</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    </div> <!-- End container -->
+
+    <!-- == Theme Toggle Event Listener (RUNS LATE - before </body>) == -->
+    <script>
+        const toggleButton = document.getElementById('theme-toggle');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                // Use documentElement (<html> tag) to check current theme reliably
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+        }
+    </script>
+     <!-- == End Theme Toggle Event Listener == -->
+
+</body>
+</html>
